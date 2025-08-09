@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Bright Minds — Offline App</title>
+<style>
+  :root{
+    --ink:#0f172a; --muted:#475569; --bg1:#f6fbff; --bg2:#fffbea; --card:#ffffff; --border:#0f172a22;
+    --grad-math: linear-gradient(135deg,#ffde59,#ff914d);
+    --grad-reading: linear-gradient(135deg,#9be7ff,#5a7fff);
+    --grad-science: linear-gradient(135deg,#b8ffb8,#33cc7a);
+    --grad-history: linear-gradient(135deg,#ffc9c9,#ff6868);
+    --grad-art: linear-gradient(135deg,#ffb3ff,#ff66cc);
+  }
+  html,body{height:100%}
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;background:linear-gradient(180deg,var(--bg1),var(--bg2));color:var(--ink)}
+  .wrap{max-width:1120px;margin:0 auto;padding:16px}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:space-between}
+  h1{margin:6px 0 2px 0}
+  .sub{color:var(--muted);font-size:13px}
+  .grid{display:grid;gap:14px}
+  @media(min-width:640px){.grid.cols-2{grid-template-columns:repeat(2,1fr)}}
+  @media(min-width:900px){.grid.cols-3{grid-template-columns:repeat(3,1fr)}}
+  .tile{display:block;width:100%;text-align:left;padding:18px 16px;border-radius:20px;border:2px solid var(--border);background:var(--card);cursor:pointer;box-shadow:0 8px 20px #00000010}
+  .tile strong{display:block;font-size:18px}
+  .tile .kicker{font-size:12px;color:var(--muted)}
+  .tile.math{background:var(--grad-math); color:#0b1220;}
+  .tile.reading{background:var(--grad-reading); color:#04122e;}
+  .tile.science{background:var(--grad-science);}
+  .tile.history{background:var(--grad-history);}
+  .tile.art{background:var(--grad-art);}
+  .btn{display:inline-block;padding:12px 14px;border-radius:14px;border:2px solid var(--border);background:var(--card);cursor:pointer}
+  .btn.block{display:block;width:100%}
+  .small{padding:8px 12px}
+  .crumbs{margin:10px 0;font-size:13px}
+  .crumbs a{color:#0a58ca}
+  .card{background:var(--card);border:2px solid var(--border);border-radius:16px;padding:14px;box-shadow:0 8px 20px #00000008}
+  .pill{display:inline-block;background:#111;color:#fff;border-radius:999px;padding:4px 8px;font-size:12px}
+  .bar{height:10px;min-width:140px;border-radius:999px;overflow:hidden;background:#e5e7eb}
+  .bar>span{display:block;height:10px;background:#111}
+  .hide{display:none}
+  .section-title{margin:8px 0}
+  .hr{height:1px;background:#00000018;margin:10px 0}
+  .hero{background:#ffffffaa;border:2px dashed var(--border); border-radius:18px; padding:12px}
+  @media print{ .no-print{display:none!important} body{background:#fff} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="row no-print">
+    <div>
+      <h1 style="background:linear-gradient(90deg,#ff0066,#ff8a00,#ffd300,#00d084,#00c2ff,#8a2be2,#ff0066);-webkit-background-clip:text;background-clip:text;color:transparent;background-size:200% 100%;animation:logo 12s linear infinite;@keyframes logo{to{background-position:200% 0}}">Bright Minds</h1>
+      <div class="sub">Colorful. Offline. Android‑safe. Ages 5–12</div>
+      <div class="hero sub">Tip: Add a child in <strong>Parent Dashboard</strong> to track progress and unlock rewards.</div>
+    </div>
+    <div class="row">
+      <button class="btn small" id="btnParent">Parent Dashboard</button>
+      <button class="btn small" id="btnExport">Export Progress (PDF)</button>
+    </div>
+  </header>
+
+  <nav class="crumbs no-print">
+    <a href="#" id="crumbHome">Home</a>
+    <span id="c1"></span> <span id="c2"></span>
+  </nav>
+
+  <!-- HOME -------------------------------------------------------------- -->
+  <main id="view-home">
+    <div class="grid cols-2 cols-3">
+      <button class="tile math" data-subject="math">🧮 <strong>Math Adventures</strong><span class="kicker">Counting • +−×÷ • Time</span></button>
+      <button class="tile reading" data-subject="reading">📚 <strong>Reading & Phonics</strong><span class="kicker">Sight words • Passages</span></button>
+      <button class="tile science" data-subject="science">🔬 <strong>Science Lab</strong><span class="kicker">Plants • Space</span></button>
+      <button class="tile history" data-subject="history">🌍 <strong>History & Geography</strong><span class="kicker">Symbols • Flags</span></button>
+      <button class="tile art" data-subject="art">🎨 <strong>Art & Creativity</strong><span class="kicker">Patterns • Posters</span></button>
+      <button class="tile" id="btnPlanner">📅 <strong>Daily Planner</strong><span class="kicker">Checklists • Routines</span></button>
+    </div>
+    <div class="card" style="margin-top:12px">
+      <strong>How it works</strong>
+      <ol>
+        <li>Tap a subject</li>
+        <li>Choose an age group</li>
+        <li>Play an <strong>Activity</strong> or open a <strong>Worksheet</strong></li>
+      </ol>
+    </div>
+  </main>
+
+  <!-- AGE PICKER -------------------------------------------------------- -->
+  <section id="view-age" class="hide">
+    <h2 id="ageTitle" class="section-title"></h2>
+    <div class="grid cols-2 cols-3">
+      <button class="btn block" data-age="5-7">5–7 • Young Thinkers</button>
+      <button class="btn block" data-age="8-10">8–10 • Smart Builders</button>
+      <button class="btn block" data-age="11-12" disabled>11–12 • Master Minds (coming soon)</button>
+    </div>
+  </section>
+
+  <!-- SUBJECT VIEW ------------------------------------------------------ -->
+  <section id="view-subject" class="hide">
+    <div class="row">
+      <div>
+        <h2 id="subTitle" class="section-title"></h2>
+        <div id="ageLabel" class="sub"></div>
+      </div>
+      <div class="row">
+        <div class="sub">Progress</div>
+        <div class="bar"><span id="pbar" style="width:0%"></span></div>
+        <span class="pill" id="ppct">0%</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <strong>Activities</strong>
+      <div class="grid cols-2" id="actGrid" style="margin-top:10px"></div>
+    </div>
+
+    <div class="card" style="margin-top:10px">
+      <strong>Worksheets (Black & White)</strong>
+      <div class="grid cols-2" id="wsGrid" style="margin-top:10px"></div>
+    </div>
+  </section>
+
+  <!-- PLANNER ----------------------------------------------------------- -->
+  <section id="view-planner" class="hide">
+    <div class="card">
+      <h3>Daily Planner</h3>
+      <p class="sub">Simple checklist (offline)</p>
+      <div class="grid cols-2" id="planGrid"></div>
+      <div class="hr"></div>
+      <button class="btn small" id="addTask">+ Add task</button>
+    </div>
+  </section>
+
+  <!-- PARENT ------------------------------------------------------------ -->
+  <section id="view-parent" class="hide">
+    <div class="card">
+      <h3>Parent Dashboard</h3>
+      <p class="sub">Up to 4 child profiles. PIN demo: <strong>1234</strong></p>
+      <div class="grid cols-2" id="kidsGrid"></div>
+      <div class="hr"></div>
+      <div class="row">
+        <button class="btn small" id="btnAddKid">+ Add Child</button>
+        <button class="btn small" id="btnReset">Reset All Progress</button>
+        <span class="pill" id="activeKidTag"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- MODAL ------------------------------------------------------------- -->
+  <section id="modal" class="hide" aria-hidden="true">
+    <div class="card" id="modalCard">
+      <div class="row">
+        <strong id="modalTitle">Activity</strong>
+        <button class="btn small" id="modalClose">Close</button>
+      </div>
+      <div id="modalBody" style="margin-top:10px"></div>
+    </div>
+  </section>
+</div>
+
+<script>
+// ------- DATA -----------------------------------------------------------
+const SUBJECTS = [
+  { id:'math',    name:'Math Adventures', icon:'🧮' },
+  { id:'reading', name:'Reading & Phonics', icon:'📚' },
+  { id:'science', name:'Science Lab', icon:'🔬' },
+  { id:'history', name:'History & Geography', icon:'🌍' },
+  { id:'art',     name:'Art & Creativity', icon:'🎨' },
+];
+
+const ACTIVITIES = {
+  math: {
+    '5-7': [ 'Add & Subtract Quiz', 'Number Order', 'Tell the Time' ],
+    '8-10':[ 'Times Tables Trainer', 'Fractions Basics' ]
+  },
+  reading: {
+    '5-7': [ 'Sight Words Match', 'Short Passage Q&A' ],
+    '8-10':[ 'Paragraph Ordering', 'Comprehension Quiz' ]
+  },
+  science: { '5-7': ['Animal vs Plant (Quiz)'], '8-10':['Solar System Basics'] },
+  history: { '5-7': ['US Symbols'], '8-10':['World Flags'] },
+  art:     { '5-7': ['Pattern Maker'], '8-10':['Poster Builder'] }
+};
+
+const WORKSHEETS = {
+  math: {
+    '5-7': [ {title:'Add/Subtract (BW-1)', gen: ws_addsub_57}, {title:'Number Order (BW-1)', gen: ws_numberorder_57} ],
+    '8-10':[ {title:'Times Tables (BW-1)', gen: ws_tables_810}, {title:'Fractions (BW-1)', gen: ws_fractions_810} ]
+  },
+  reading: {
+    '5-7': [ {title:'Sight Words (BW-1)', gen: ws_sight_57}, {title:'Short Passage (BW-1)', gen: ws_passage_57} ],
+    '8-10':[ {title:'Paragraph Order (BW-1)', gen: ws_para_810}, {title:'Comprehension (BW-1)', gen: ws_comp_810} ]
+  }
+};
+
+// ------- STATE ----------------------------------------------------------
+const $ = s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const LS_KEY='brightminds_state_v2';
+let state = load() || { kids:[], activeKid:null, progress:{}, tasks:[] };
+function load(){ try{return JSON.parse(localStorage.getItem(LS_KEY))}catch(e){return null} }
+function save(){ localStorage.setItem(LS_KEY, JSON.stringify(state)); }
+function setActiveKid(id){ state.activeKid=id; save(); renderKids(); tagActiveKid(); }
+function getActiveKid(){ return state.kids.find(k=>k.id===state.activeKid)||null; }
+function kidProgress(id){ if(!state.progress[id]) state.progress[id]={}; return state.progress[id]; }
+function bumpProgress(kidId, subj, delta){ const p=kidProgress(kidId); p[subj]=Math.min(100,(p[subj]||0)+delta); save(); }
+
+// ------- NAV ------------------------------------------------------------
+let currentSubject=null, currentAge=null;
+function show(id){ ['home','age','subject','planner','parent','modal'].forEach(v=>$('#view-'+v)?.classList.add('hide')); $('#view-'+id)?.classList.remove('hide'); }
+function crumbs(s='',a=''){ $('#c1').textContent = s? '› '+s : ''; $('#c2').textContent = a? ' › '+a : ''; }
+$('#crumbHome').onclick=e=>{e.preventDefault(); currentSubject=null; currentAge=null; crumbs(); show('home');};
+$('#btnPlanner').onclick=()=>{ crumbs('Planner',''); show('planner'); renderPlanner(); };
+
+// Home → Age
+$$("#view-home .tile[data-subject]").forEach(b=>{ b.onclick=()=>{ currentSubject=b.getAttribute('data-subject'); const m=SUBJECTS.find(s=>s.id===currentSubject); $('#ageTitle').textContent=m.icon+' '+m.name+' — pick your level'; crumbs(m.name,''); show('age'); }; });
+// Age → Subject
+$$("#view-age .btn[data-age]").forEach(b=>{ b.onclick=()=>{ currentAge=b.getAttribute('data-age'); const m=SUBJECTS.find(s=>s.id===currentSubject); $('#subTitle').textContent=m.icon+' '+m.name; $('#ageLabel').textContent='Level: Ages '+currentAge; crumbs(m.name,currentAge); renderSubject(); show('subject'); }; });
+
+// ------- SUBJECT VIEW ---------------------------------------------------
+function renderSubject(){
+  const kid=getActiveKid(); const prog=kid? kidProgress(kid.id):{}; const pct=kid? (prog[currentSubject]||0):0; $('#pbar').style.width=pct+'%'; $('#ppct').textContent=pct+'%';
+  const acts=(ACTIVITIES[currentSubject]||{})[currentAge]||[]; const ag=$('#actGrid'); ag.innerHTML='';
+  acts.forEach(name=>{ const btn=document.createElement('button'); btn.className='btn block'; btn.textContent='▶ '+name; btn.onclick=()=>openActivity(name); ag.appendChild(btn); });
+  const ws=(WORKSHEETS[currentSubject]||{})[currentAge]||[]; const wg=$('#wsGrid'); wg.innerHTML='';
+  ws.forEach(w=>{ const btn=document.createElement('button'); btn.className='btn block'; btn.textContent='🖨️ '+w.title; btn.onclick=()=>openWorksheet(w.title,w.gen); wg.appendChild(btn); });
+}
+
+// ------- MODAL ----------------------------------------------------------
+$('#modalClose').onclick=()=>show('subject');
+function openModal(title,node){ $('#modalTitle').textContent=title; const body=$('#modalBody'); body.innerHTML=''; body.appendChild(node); show('modal'); }
+
+// ------- ACTIVITIES -----------------------------------------------------
+function needKid(){ if(!getActiveKid()){ alert('Add/select a child in Parent Dashboard first.'); return true;} return false; }
+function award(subj,points){ const k=getActiveKid(); if(!k) return; bumpProgress(k.id,subj,points); renderSubject(); }
+
+// Math 5–7
+function act_math_addsub_57(t){ if(needKid()) return; const box=document.createElement('div'); let s=0,i=0; const qs=[{q:'5+3=?',a:['6','7','8'],ok:'8'},{q:'10-6=?',a:['3','4','5'],ok:'4'},{q:'2+7=?',a:['9','7','8'],ok:'9'},{q:'9-5=?',a:['2','3','4'],ok:'4'}]; const q=document.createElement('p'); q.style.fontWeight='700'; q.style.fontSize='18px'; const grid=document.createElement('div'); grid.className='grid cols-2'; const tag=document.createElement('div'); tag.className='pill'; function draw(){ const cur=qs[i]; q.textContent=cur.q; grid.innerHTML=''; tag.textContent='Score: '+s+'/'+qs.length; cur.a.forEach(opt=>{ const b=document.createElement('button'); b.className='btn'; b.textContent=opt; b.onclick=()=>{ if(opt===cur.ok) s++; if(++i<qs.length) draw(); else { award('math',Math.min(25,s*6)); q.textContent='Great job! '+s+'/'+qs.length; grid.innerHTML=''; } }; grid.appendChild(b); }); } box.appendChild(tag); box.appendChild(q); box.appendChild(grid); draw(); openModal(t,box); }
+function act_math_numorder_57(t){ if(needKid()) return; const box=document.createElement('div'); const arr=[3,7,2,9,5],target=[...arr].sort((a,b)=>a-b); const list=document.createElement('div'); list.className='grid cols-2'; const info=document.createElement('p'); info.textContent='Tap numbers from smallest to largest.'; info.style.fontWeight='700'; let idx=0; const tag=document.createElement('div'); tag.className='pill'; tag.textContent='Correct: 0/5'; arr.forEach(n=>{ const b=document.createElement('button'); b.className='btn'; b.textContent=String(n); b.onclick=()=>{ if(n===target[idx]){ idx++; b.disabled=true; b.textContent='✔ '+n; tag.textContent='Correct: '+idx+'/5'; if(idx===5){ award('math',20); info.textContent='Nice! Completed.'; } } else { b.textContent='✖ '+n; } }; list.appendChild(b); }); box.appendChild(tag); box.appendChild(info); box.appendChild(list); openModal(t,box); }
+function act_math_time_57(t){ if(needKid()) return; const box=document.createElement('div'); const times=[['3:15','quarter past 3'],['7:30','half past 7'],['9:00','nine o\'clock']]; let i=0,s=0; const q=document.createElement('p'); q.style.fontWeight='700'; const c=document.createElement('div'); c.className='grid cols-2'; const tag=document.createElement('div'); tag.className='pill'; function draw(){ const T=times[i]; q.textContent='What time is: '+T[1]+'?'; c.innerHTML=''; tag.textContent='Correct: '+s+'/'+times.length; [T[0],'3:30','8:00','6:15'].sort(()=>Math.random()-0.5).forEach(opt=>{ const b=document.createElement('button'); b.className='btn'; b.textContent=opt; b.onclick=()=>{ if(opt===T[0]) s++; if(++i<times.length) draw(); else { award('math',15); q.textContent='Finished! Score '+s+'/'+times.length; c.innerHTML=''; } }; c.appendChild(b); }); } box.appendChild(tag); box.appendChild(q); box.appendChild(c); draw(); openModal(t,box); }
+
+// Math 8–10
+function act_math_tables_810(t){ if(needKid()) return; const box=document.createElement('div'); let s=0,r=0; const tag=document.createElement('div'); tag.className='pill'; const q=document.createElement('p'); q.style.fontWeight='700'; q.style.fontSize='18px'; const c=document.createElement('div'); c.className='grid cols-2'; function next(){ if(r>=8){ q.textContent='Done! Score '+s+'/8'; c.innerHTML=''; award('math',Math.min(30,s*4)); return;} r++; tag.textContent='Round '+r+'/8'; const a=2+Math.floor(Math.random()*11), b=2+Math.floor(Math.random()*11), ok=a*b; q.textContent=a+' × '+b+' = ?'; c.innerHTML=''; [ok,ok+1,ok-1,ok+2].sort(()=>Math.random()-0.5).forEach(v=>{ const B=document.createElement('button'); B.className='btn'; B.textContent=String(v); B.onclick=()=>{ if(v===ok) s++; next(); }; c.appendChild(B); }); } box.appendChild(tag); box.appendChild(q); box.appendChild(c); next(); openModal(t,box); }
+function act_math_fractions_810(t){ if(needKid()) return; const box=document.createElement('div'); const items=[[1,2,8],[1,4,12]]; let i=0,s=0; const tag=document.createElement('div'); tag.className='pill'; const q=document.createElement('p'); q.style.fontWeight='700'; const c=document.createElement('div'); c.className='grid cols-2'; function draw(){ if(i>=items.length){ q.textContent='Done! Score '+s+'/'+items.length; c.innerHTML=''; award('math',20); return;} const [n,d,total]=items[i]; q.textContent='Shade '+n+'/'+d+' of '+total+' squares.'; c.innerHTML=''; const grid=document.createElement('div'); grid.style.display='grid'; grid.style.gridTemplateColumns='repeat(6,20px)'; grid.style.gap='4px'; let shaded=0; for(let k=0;k<total;k++){ const cell=document.createElement('div'); cell.style.width='20px'; cell.style.height='20px'; cell.style.border='1px solid #000'; cell.style.background='#fff'; cell.onclick=()=>{ if(cell.style.background==='#000'){ cell.style.background='#fff'; shaded--; } else { cell.style.background='#000'; shaded++; } }; grid.appendChild(cell); } const done=document.createElement('button'); done.className='btn small'; done.textContent='Check'; done.onclick=()=>{ const need=Math.round(total*n/d); if(shaded===need){ s++; i++; draw(); } else { done.textContent='Try again ('+shaded+'/'+need+')'; } }; c.appendChild(grid); c.appendChild(done);} box.appendChild(tag); box.appendChild(q); box.appendChild(c); draw(); openModal(t,box); }
+
+// Reading 5–7
+function act_read_sight_57(t){ if(needKid()) return; const box=document.createElement('div'); const words=['play','look','come','make','blue','little','where','find']; const word=words[Math.floor(Math.random()*words.length)]; const p=document.createElement('p'); p.textContent='Find the word: \''+word+"\'"; p.style.fontWeight='700'; const c=document.createElement('div'); c.className='grid cols-2'; const opts=[word,...words.filter(w=>w!==word).slice(0,3)].sort(()=>Math.random()-0.5); opts.forEach(w=>{ const b=document.createElement('button'); b.className='btn'; b.textContent=w; b.onclick=()=>{ if(w===word){ b.textContent='✔ '+w; award('reading',15);} else { b.textContent='✖ '+w;} }; c.appendChild(b); }); box.appendChild(p); box.appendChild(c); openModal(t,box); }
+function act_read_passage_57(t){ if(needKid()) return; const box=document.createElement('div'); const pass=document.createElement('div'); pass.className='card'; pass.innerHTML='Mia has a red kite. It is windy today. She goes to the park with Dad. The kite flies high. Mia laughs.'; const q1=document.createElement('div'); q1.innerHTML='<strong>Q1:</strong> What color is the kite?'; const a1=document.createElement('div'); a1.className='grid cols-2'; ['Red','Blue','Green','Yellow'].forEach((txt,i)=>{ const b=document.createElement('button'); b.className='btn'; b.textContent=txt; b.onclick=()=>{ b.textContent += i===0?' ✔':' ✖'; }; a1.appendChild(b); }); const q2=document.createElement('div'); q2.style.marginTop='8px'; q2.innerHTML='<strong>Q2:</strong> Where does Mia go?'; const a2=document.createElement('div'); a2.className='grid cols-2'; ['The park','Home','School','The beach'].forEach((txt,i)=>{ const b=document.createElement('button'); b.className='btn'; b.textContent=txt; b.onclick=()=>{ b.textContent += i===0?' ✔':' ✖'; if(i===0) award('reading',15); }; a2.appendChild(b); }); box.appendChild(pass); box.appendChild(q1); box.appendChild(a1); box.appendChild(q2); box.appendChild(a2); openModal(t,box); }
+
+// Reading 8–10
+function act_read_para_810(t){ if(needKid()) return; const box=document.createElement('div'); const parts=['(1) Tom found a map.','(2) He followed the river.','(3) He climbed the hill.','(4) He saw the town below.']; const list=document.createElement('div'); list.className='grid cols-2'; let order=[]; parts.sort(()=>Math.random()-0.5).forEach(txt=>{ const b=document.createElement('button'); b.className='btn'; b.textContent=txt; b.onclick=()=>{ order.push(txt[1]); b.disabled=true; if(order.length===4){ const ok=order.join('')==='1234'; alert('Your order: '+order.join('')+' — '+(ok?'Correct!':'Try again')); if(ok) award('reading',20); } }; list.appendChild(b); }); box.appendChild(list); openModal(t,box); }
+function act_read_comp_810(t){ if(needKid()) return; const box=document.createElement('div'); const pass=document.createElement('div'); pass.className='card'; pass.innerHTML='Sara planted three seeds in a cup. She put the cup by a window and gave it water each day. After a week, a small green sprout appeared.'; const q=document.createElement('p'); q.innerHTML='<strong>Why did Sara put the cup by a window?</strong>'; const c=document.createElement('div'); c.className='grid cols-2'; [['For sunlight (Correct)',true],['To keep it cold',false],['To hide it',false],['To make it rain',false]].forEach(([txt,ok])=>{ const b=document.createElement('button'); b.className='btn'; b.textContent=txt; b.onclick=()=>{ b.textContent += ok?' ✔':' ✖'; if(ok) award('reading',20); }; c.appendChild(b); }); box.appendChild(pass); box.appendChild(q); box.appendChild(c); openModal(t,box); }
+
+// Router
+function openActivity(name){ const map={
+  'Add & Subtract Quiz':act_math_addsub_57,
+  'Number Order':act_math_numorder_57,
+  'Tell the Time':act_math_time_57,
+  'Times Tables Trainer':act_math_tables_810,
+  'Fractions Basics':act_math_fractions_810,
+  'Sight Words Match':act_read_sight_57,
+  'Short Passage Q&A':act_read_passage_57,
+  'Paragraph Ordering':act_read_para_810,
+  'Comprehension Quiz':act_read_comp_810
+}; const fn=map[name]; fn?fn(name):alert('Coming soon'); }
+
+// ------- WORKSHEETS -----------------------------------------------------
+function openWorksheet(title,gen){ const node=gen(); openModal('Worksheet • '+title,node); const printBtn=document.createElement('button'); printBtn.className='btn small'; printBtn.textContent='Print / Save as PDF'; printBtn.onclick=()=>window.print(); $('#modalBody').appendChild(document.createElement('div')).appendChild(printBtn); }
+function ws_addsub_57(){ const d=document.createElement('div'); d.className='card'; d.innerHTML='<h3>Add / Subtract</h3><ol><li>7 + 5 = ____</li><li>12 - 8 = ____</li><li>9 + 4 = ____</li><li>15 - 6 = ____</li><li>3 + 3 = ____</li></ol>'; return d; }
+function ws_numberorder_57(){ const d=document.createElement('div'); d.className='card'; d.innerHTML='<h3>Number Order</h3><p>Write from smallest to largest: 3, 9, 1, 7, 5 → __________</p>'; return d; }
+function ws_tables_810(){ const d=document.createElement('div'); d.className='card'; d.innerHTML='<h3>Times Tables</h3><ol><li>6 × 7 = ____</li><li>8 × 9 = ____</li><li>12 × 12 = ____</li><li>7 × 5 = ____</li></ol>'; return d; }
+function ws_fractions_810(){ const d=document.createElement('div'); d.className='card'; d.innerHTML='<h3>Fractions</h3><ol><li>Shade 1/2 of 10 squares.</li><li>Shade 1/4 of 12 squares.</li><li>Which is larger: 1/3 or 1/4? _____</li></ol>'; return d; }
+function ws_sight_57(){ const d=document.createElement('div'); d.className='card'; d.innerHTML='<h3>Sight Words</h3><p>Circle the word: play — look — come — make</p>'; return d; }
+function ws_passage_57(){ const d=document.createElement('div'); d.className='card'; d.innerHTML='<h3>Short Passage</h3><p>Mia has a red kite. Answer: What color? Where does Mia go?</p>'; return d; }
+function ws_para_810(){ const d=document.createElement('div'); d.className='card'; d.innerHTML='<h3>Paragraph Order</h3><p>Number 1–4: (Tom found a map / He followed the river / He climbed the hill / He saw the town below)</p>'; return d; }
+function ws_comp_810(){ const d=document.createElement('div'); d.className='card'; d.innerHTML='<h3>Comprehension</h3><p>Why did Sara put the cup by a window? __________</p>'; return d; }
+
+// ------- PARENT ---------------------------------------------------------
+$('#btnParent').onclick=()=>{ const pin=prompt('Enter PIN (demo 1234)'); if(pin!=='1234') return; show('parent'); renderKids(); tagActiveKid(); };
+$('#btnAddKid').onclick=()=>{ if(state.kids.length>=4){ alert('Max 4 children.'); return;} const name=prompt('Child name'); if(!name) return; const id='kid_'+Date.now(); state.kids.push({id,name}); if(!state.activeKid) state.activeKid=id; save(); renderKids(); tagActiveKid(); };
+$('#btnReset').onclick=()=>{ if(confirm('Reset ALL progress?')){ state.progress={}; save(); alert('Progress reset.'); renderKids(); if(currentSubject&&currentAge) renderSubject(); } };
+function renderKids(){ const box=$('#kidsGrid'); box.innerHTML=''; if(!state.kids.length){ box.innerHTML='<p class="sub">No children yet. Add one above.</p>'; return;} state.kids.forEach(k=>{ const card=document.createElement('div'); card.className='card'; const hdr=document.createElement('div'); hdr.className='row'; hdr.innerHTML='<strong>'+k.name+'</strong>'; const sel=document.createElement('button'); sel.className='btn small'; sel.textContent= (state.activeKid===k.id? 'Active ✓':'Set Active'); sel.onclick=()=>setActiveKid(k.id); hdr.appendChild(sel); card.appendChild(hdr); const prog=kidProgress(k.id); SUBJECTS.forEach(s=>{ const pct=prog[s.id]||0; const row=document.createElement('div'); row.className='row'; row.innerHTML='<div>'+s.name+'</div><div class="bar" style="width:200px"><span style="width:'+pct+'%"></span></div><span class="pill">'+pct+'%</span>'; card.appendChild(row); }); box.appendChild(card); }); }
+function tagActiveKid(){ const k=getActiveKid(); $('#activeKidTag').textContent = k? ('Active: '+k.name) : 'No active child'; }
+
+// ------- EXPORT ---------------------------------------------------------
+$('#btnExport').onclick=()=>{ const k=getActiveKid(); if(!k){ alert('Select a child in Parent Dashboard first.'); return;} const prog=kidProgress(k.id); const printable=document.createElement('div'); printable.className='card'; printable.innerHTML='<h2>Progress Report — '+k.name+'</h2><p>Date: '+new Date().toLocaleString()+'</p>'+SUBJECTS.map(s=>'<div class="row"><div>'+s.name+'</div><div class="bar" style="width:200px"><span style="width:'+(prog[s.id]||0)+'%"></span></div><span>'+(prog[s.id]||0)+'%</span></div>').join(''); const body=$('#modalBody'); body.innerHTML=''; body.appendChild(printable); $('#modalTitle').textContent='Export Preview'; show('modal'); setTimeout(()=>window.print(),300); };
+
+// ------- PLANNER --------------------------------------------------------
+function renderPlanner(){ const g=$('#planGrid'); g.innerHTML=''; state.tasks.forEach((t,i)=>{ const row=document.createElement('div'); row.className='row'; const chk=document.createElement('input'); chk.type='checkbox'; chk.checked=!!t.done; chk.onchange=()=>{ t.done=chk.checked; save(); }; const label=document.createElement('span'); label.textContent=t.text; const del=document.createElement('button'); del.className='btn small'; del.textContent='Delete'; del.onclick=()=>{ state.tasks.splice(i,1); save(); renderPlanner(); }; row.appendChild(chk); row.appendChild(label); row.appendChild(del); g.appendChild(row); }); }
+$('#addTask').onclick=()=>{ const txt=prompt('New task'); if(!txt) return; state.tasks.push({text:txt,done:false}); save(); renderPlanner(); };
+
+// INIT
+show('home');
+</script>
+</body>
+</html>
